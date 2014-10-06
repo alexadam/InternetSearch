@@ -1,4 +1,4 @@
-package org.eclipse.ui.internal.console;
+package org.utils.internetsearch.handlers;
 
 import java.net.URL;
 import java.net.URLEncoder;
@@ -15,10 +15,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.utils.internetsearch.preferences.ISPrefenceManager;
+import org.utils.internetsearch.preferences.PreferenceConstants;
 
 public class InternetSearchHandler extends AbstractHandler {
 
-	@Override
+	public InternetSearchHandler() {
+	}
+
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		ISelection sel = HandlerUtil.getActiveWorkbenchWindow(event).getSelectionService().getSelection();
@@ -49,9 +53,9 @@ public class InternetSearchHandler extends AbstractHandler {
 				if (browserSupport == null)
 					return null;
 
-				List<String> engines = InternetSearchPreferencePage.getSelectedSearchEngines();
+				List<String> engines = ISPrefenceManager.getSelectedEngines();
 				
-				if (InternetSearchPreferencePage.getBrowserType().equals(InternetSearchPreferencePage.INTERNAL_BROWSER)) {
+				if (ISPrefenceManager.getSelectedBrowser().equals(PreferenceConstants.INTERNAL_BROWSER)) {
 
 					for (String engine : engines) {
 						IWebBrowser browser =browserSupport.createBrowser(
@@ -62,16 +66,27 @@ public class InternetSearchHandler extends AbstractHandler {
 								engine + selText,
 								selText, 
 								null);
-						browser.openURL(new URL(engine + URLEncoder.encode(selText, "UTF-8")));
+						URL pUrl = prepareUrl(engine, selText);
+						
+						if (pUrl != null)
+							browser.openURL(pUrl);
+						
 					}
-				} else if (InternetSearchPreferencePage.getBrowserType().equals(InternetSearchPreferencePage.EXTERNAL_BROWSER)) {
+				} else if (ISPrefenceManager.getSelectedBrowser().equals(PreferenceConstants.EXTERNAL_BROWSER)) {
 					IWebBrowser webBrowser = browserSupport.getExternalBrowser();
-					
-					for (String engine : engines)
-						webBrowser.openURL(new URL(engine + URLEncoder.encode(selText, "UTF-8")));
-				} else if (InternetSearchPreferencePage.getBrowserType().equals(InternetSearchPreferencePage.CUSTOM_BROWSER)) {
-					for (String engine : engines)
-						Runtime.getRuntime().exec(InternetSearchPreferencePage.getCustomBrowser() + " " + engine + URLEncoder.encode(selText, "UTF-8"));
+					for (String engine : engines) {
+						URL pUrl = prepareUrl(engine, selText);
+						
+						if (pUrl != null)
+							webBrowser.openURL(pUrl);
+					}
+				} else if (ISPrefenceManager.getSelectedBrowser().equals(PreferenceConstants.CUSTOM_BROWSER)) {
+					for (String engine : engines) {
+						URL pUrl = prepareUrl(engine, selText);
+						
+						if (pUrl != null)
+							Runtime.getRuntime().exec(ISPrefenceManager.getCustomBrowser() + " " + pUrl);
+					}
 				}
 				
 			} catch (Exception e) {
@@ -81,5 +96,17 @@ public class InternetSearchHandler extends AbstractHandler {
 		}
 		return null;
 	}
-
+	
+	private URL prepareUrl(String engine, String selText) {
+		try {
+			if (!engine.contains("{}"))
+				return new URL(engine + URLEncoder.encode(selText, "UTF-8"));
+			
+			engine = engine.replace("{}", URLEncoder.encode(selText, "UTF-8"));
+			return new URL(engine);
+		} catch (Exception e) {
+			MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internet Search", "Malformed URL!"); 
+			return null;
+		}
+	}
 }

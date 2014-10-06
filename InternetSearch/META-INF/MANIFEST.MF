@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: InternetSearch
+Bundle-SymbolicName: org.utils.InternetSearch;singleton:=true
+Bundle-Version: 1.0.0.1
+Bundle-Activator: org.utils.internetsearch.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text;bundle-version="3.9.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7,
+ JavaSE-1.6
+Bundle-ActivationPolicy: lazy
