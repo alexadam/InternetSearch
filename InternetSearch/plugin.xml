@@ -61,5 +61,4 @@
             class="org.utils.internetsearch.preferences.PreferenceInitializer">
       </initializer>
    </extension>
-
 </plugin>
