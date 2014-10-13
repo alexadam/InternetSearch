@@ -9,7 +9,7 @@
             id="org.utils.InternetSearch.commands.category">
       </category>
       <command
-            name="Sample Command"
+            name="Internet Search"
             categoryId="org.utils.InternetSearch.commands.category"
             id="org.utils.InternetSearch.command">
       </command>
@@ -25,7 +25,7 @@
          point="org.eclipse.ui.bindings">
       <key
             commandId="org.utils.InternetSearch.command"
-            contextId="org.eclipse.ui.contexts.window"
+            contextId="org.eclipse.ui.contexts.dialogAndWindow"
             sequence="M1+4"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>

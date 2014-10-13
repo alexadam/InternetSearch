@@ -13,6 +13,9 @@ public class ISPrefenceManager {
 	private static List<String> fSelectedEngines = new ArrayList<String>();
 	private static String fSelectedBrowser = PreferenceConstants.DEFAULT_BROWSER;
 	private static String fCustomBrowser = "";
+	private static boolean fUseAnySelection = false;
+	private static boolean fInsertKeywords = false;
+	private static String fKeywords = "";
 	
 	public static void refreshPrefences() {
 		IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
@@ -37,6 +40,15 @@ public class ISPrefenceManager {
 			fSelectedEngines = new ArrayList<String>(Arrays.asList(tmpStr.split("\n")));
 		else
 			fSelectedEngines.add(tmpStr);
+		
+		//any selection
+		fUseAnySelection = prefStore.getBoolean(PreferenceConstants.USE_ANY_SELECTION_PREF_NAME);
+		
+		//insert keywords
+		fInsertKeywords = prefStore.getBoolean(PreferenceConstants.INSERT_KEYWORDS_PREF_NAME);
+		
+		//keywords
+		fKeywords = prefStore.getString(PreferenceConstants.KEYWORDS_PREF_NAME);
 	}
 	
 	public static void savePreferences() {
@@ -56,15 +68,21 @@ public class ISPrefenceManager {
 		for (String engine : fSelectedEngines)
 			sb.append(engine.trim()).append("\n");
 		prefStore.setValue(PreferenceConstants.SELECTED_SEARCH_ENGINES_PREF_NAME, sb.toString().trim());
+		
+		prefStore.setValue(PreferenceConstants.USE_ANY_SELECTION_PREF_NAME, fUseAnySelection);
+		prefStore.setValue(PreferenceConstants.INSERT_KEYWORDS_PREF_NAME, fInsertKeywords);
+		prefStore.setValue(PreferenceConstants.KEYWORDS_PREF_NAME, fKeywords);
 	}
 	
 	public static void setAllToDefaults() {
 		setSelectedBrowserToDefault();
 		fCustomBrowser = "";
-		setSelectedEnginesToDefault();
+		setAllEnginesToDefault();
 		setSelectedEnginesToDefault();
 	}
 	
+	
+	//all engines
 	public static List<String> getAllEngines() {
 		return fAllEngines;
 	}
@@ -82,6 +100,7 @@ public class ISPrefenceManager {
 		fAllEngines.addAll(PreferenceConstants.fDefaultEngines);
 	}
 	
+	//selected engines
 	public static List<String> getSelectedEngines() {
 		return fSelectedEngines;
 	}
@@ -99,6 +118,7 @@ public class ISPrefenceManager {
 		fSelectedEngines.add(PreferenceConstants.DEFAULT_SEARCH_ENGINE);
 	}
 	
+	//selected browsers
 	public static String getSelectedBrowser() {
 		return fSelectedBrowser;
 	}
@@ -128,5 +148,45 @@ public class ISPrefenceManager {
 		else 
 			fCustomBrowser = browser.trim();
 	}
-
+	
+	//use any selection
+	public static boolean isUseAnySelection() {
+		return fUseAnySelection;
+	}
+	
+	public static void setUseAnySelection(boolean anySel) {
+		fUseAnySelection = anySel;
+	}
+	
+	public static void setUseAnySelectionToDefault() {
+		fUseAnySelection = PreferenceConstants.DEFAULT_USE_ANY_SELECTION;
+	}
+	
+	//insert keywords
+	public static boolean isInsertKeywords() {
+		return fInsertKeywords;
+	}
+	
+	public static void setInsertKeywords(boolean insert) {
+		fInsertKeywords = insert;
+	}
+	
+	public static void setInsertKeywordsToDefault() {
+		fInsertKeywords = PreferenceConstants.DEFAULT_INSERT_DEFAULT_KEYWORDS;
+	}
+	
+	//keywords
+	public static String getKeywords() {
+		return fKeywords;
+	}
+	
+	public static void setKeywords(String kw) {
+		if (kw == null)
+			kw = "";
+		fKeywords = kw.trim();
+	}
+	
+	public static void setKeywordsToDefault() {
+		fKeywords = PreferenceConstants.DEFAULT_KEYWORDS;
+	}
 }

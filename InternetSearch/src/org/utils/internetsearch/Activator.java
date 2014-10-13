@@ -7,7 +7,7 @@ import org.utils.internetsearch.preferences.ISPrefenceManager;
 
 public class Activator extends AbstractUIPlugin {
 
-	public static final String PLUGIN_ID = "org.utils.InternetSearch"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.utils.InternetSearch";
 
 	private static Activator plugin;
 	

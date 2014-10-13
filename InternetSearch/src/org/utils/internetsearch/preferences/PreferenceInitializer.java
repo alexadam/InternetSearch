@@ -26,6 +26,15 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		//default selected search engine
 		store.setValue(PreferenceConstants.SELECTED_SEARCH_ENGINES_PREF_NAME, PreferenceConstants.DEFAULT_SEARCH_ENGINE);
 		
+		//insert default keywords
+		store.setDefault(PreferenceConstants.INSERT_KEYWORDS_PREF_NAME, PreferenceConstants.DEFAULT_INSERT_DEFAULT_KEYWORDS);
+		
+		//default keywords
+		store.setDefault(PreferenceConstants.KEYWORDS_PREF_NAME, PreferenceConstants.DEFAULT_KEYWORDS);
+		
+		//use any selection
+		store.setDefault(PreferenceConstants.USE_ANY_SELECTION_PREF_NAME, PreferenceConstants.DEFAULT_USE_ANY_SELECTION);
+		
 		//update the internal model
 		ISPrefenceManager.refreshPrefences();
 	}

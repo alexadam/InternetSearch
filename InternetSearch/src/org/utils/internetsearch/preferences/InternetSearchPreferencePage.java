@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -26,14 +25,17 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 	private Button fDefaultBrowserButton;
 	private Button fDefaultExtBrowserButton;
 	private Button fCustomBrowserButton;
-	private Label fCustomBrowserLabel;
 	private List<Button> fSEngineButtons;
 	
 	private List<String> fTmpEngines = new ArrayList<String>(); //local model - must be in sync with ISPreferenceManager
 	private List<String> fTmpSelectedEngines = new ArrayList<String>();
 	private Group sEnginesGroup;
 	private Group sEnginesListGroup;
-	private Button fEditCustomBrowser;
+	private Group fPrefsGroup;
+	private Button fUseAnySelButton;
+	private Button fInsertKeywordsButton;
+	private Text fKeywordsText;
+	private Text fCustomBrowserText;
 
 	@Override
 	public void init(IWorkbench workbench) {
@@ -73,13 +75,13 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 		
 		fCustomBrowserButton = new Button(browsersGroup, SWT.RADIO);
 		fCustomBrowserButton.setText("Custom Browser");
-		fCustomBrowserButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		fCustomBrowserButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		fCustomBrowserButton.setSelection(ISPrefenceManager.getSelectedBrowser().equals(PreferenceConstants.CUSTOM_BROWSER));
 		fCustomBrowserButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fEditCustomBrowser.setEnabled(fCustomBrowserButton.getSelection());
+				fCustomBrowserText.setEnabled(fCustomBrowserButton.getSelection());
 			}
 			
 			@Override
@@ -87,33 +89,43 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 			}
 		});
 		
-		fEditCustomBrowser = new Button(browsersGroup, SWT.NONE);
-		fEditCustomBrowser.setText("Edit...");
-		fEditCustomBrowser.addSelectionListener(new SelectionListener() {
+		fCustomBrowserText = new Text(browsersGroup, SWT.BORDER);
+		fCustomBrowserText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fCustomBrowserText.setEnabled(fCustomBrowserButton.getSelection());
+		fCustomBrowserText.setText(ISPrefenceManager.getCustomBrowser());
+		
+		//misc prefs
+		fPrefsGroup = new Group(parent, SWT.NONE);
+		fPrefsGroup.setLayout(new GridLayout(2, false));
+		fPrefsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fPrefsGroup.setText("Misc. Options");
+		
+		fUseAnySelButton = new Button(fPrefsGroup, SWT.CHECK);
+		
+		fUseAnySelButton.setText("Raw selection");
+		fUseAnySelButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		fUseAnySelButton.setSelection(ISPrefenceManager.isUseAnySelection());
+		
+		fInsertKeywordsButton = new Button(fPrefsGroup, SWT.CHECK);
+		fInsertKeywordsButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		fInsertKeywordsButton.setText("Insert keywords:");
+		fInsertKeywordsButton.setSelection(ISPrefenceManager.isInsertKeywords());
+		fInsertKeywordsButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				InputDialog customBrowserDialog = new InputDialog(getShell(), "Internet Search", "Set Custom Browser", fCustomBrowserLabel.getText(), null);
-				customBrowserDialog.open();
-				String browserName = customBrowserDialog.getValue();
-						
-				if (browserName == null)
-					browserName = "";
-				else
-					browserName = browserName.trim();
-
-				fCustomBrowserLabel.setText(browserName);
+				fKeywordsText.setEnabled(fInsertKeywordsButton.getSelection());
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		fEditCustomBrowser.setEnabled(fCustomBrowserButton.getSelection());
 		
-		fCustomBrowserLabel = new Label(browsersGroup, SWT.WRAP);
-		fCustomBrowserLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-		fCustomBrowserLabel.setText(ISPrefenceManager.getCustomBrowser());
+		fKeywordsText = new Text(fPrefsGroup, SWT.BORDER);
+		fKeywordsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		fKeywordsText.setEnabled(ISPrefenceManager.isInsertKeywords());
+		fKeywordsText.setText(ISPrefenceManager.getKeywords());
 		
 		///search engines 
 		
@@ -249,7 +261,7 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 			ISPrefenceManager.setSelectedBrowser(PreferenceConstants.EXTERNAL_BROWSER);
 		} else if (fCustomBrowserButton.getSelection()) {
 			ISPrefenceManager.setSelectedBrowser(PreferenceConstants.CUSTOM_BROWSER);
-			ISPrefenceManager.setCustomBrowser(fCustomBrowserLabel.getText().trim());
+			ISPrefenceManager.setCustomBrowser(fCustomBrowserText.getText().trim());
 		}
 		
 		fTmpSelectedEngines.clear();
@@ -267,6 +279,10 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 		ISPrefenceManager.setAllEngines(fTmpEngines);
 		ISPrefenceManager.setSelectedEngines(fTmpSelectedEngines);
 		
+		ISPrefenceManager.setUseAnySelection(fUseAnySelButton.getSelection());
+		ISPrefenceManager.setInsertKeywords(fInsertKeywordsButton.getSelection());
+		ISPrefenceManager.setKeywords(fKeywordsText.getText());
+		
 		ISPrefenceManager.savePreferences();
 	}
 	
@@ -278,7 +294,7 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 			fDefaultExtBrowserButton.setSelection(true);
 		} else if (PreferenceConstants.DEFAULT_BROWSER.equals(PreferenceConstants.CUSTOM_BROWSER)) {
 			fCustomBrowserButton.setSelection(true);
-			fCustomBrowserLabel.setText("");
+			fCustomBrowserText.setText("");
 		}
 		
 		fTmpEngines.clear();
@@ -287,6 +303,10 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 		fTmpSelectedEngines.add(PreferenceConstants.DEFAULT_SEARCH_ENGINE);
 		
 		drawSEngineButtons();
+		
+		fUseAnySelButton.setSelection(PreferenceConstants.DEFAULT_USE_ANY_SELECTION);
+		fInsertKeywordsButton.setSelection(PreferenceConstants.DEFAULT_INSERT_DEFAULT_KEYWORDS);
+		fKeywordsText.setText(PreferenceConstants.DEFAULT_KEYWORDS);
 		
 		super.performDefaults();
 	}
@@ -297,6 +317,9 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 		fDefaultBrowserButton.dispose();
 		fDefaultExtBrowserButton.dispose();
 		fCustomBrowserButton.dispose();
+		fInsertKeywordsButton.dispose();
+		fUseAnySelButton.dispose();
+		fKeywordsText.dispose();
 		
 		for (Button button : fSEngineButtons)
 			button.dispose();
