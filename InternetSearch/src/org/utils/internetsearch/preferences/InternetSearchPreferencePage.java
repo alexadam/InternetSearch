@@ -64,7 +64,7 @@ public class InternetSearchPreferencePage extends FieldEditorPreferencePage impl
 		browsersGroup.setText("Select Browser");
 		
 		fDefaultBrowserButton = new Button(browsersGroup, SWT.RADIO);
-		fDefaultBrowserButton.setText("Default Eclipse Browser (Not Recommended!)");
+		fDefaultBrowserButton.setText("Default Eclipse Browser");
 		fDefaultBrowserButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 		fDefaultBrowserButton.setSelection(ISPrefenceManager.getSelectedBrowser().equals(PreferenceConstants.INTERNAL_BROWSER));
 		
